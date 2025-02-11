@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    /* Allow javascript files to be compiled. */
+    "strict": true,
+    /* Enable all strict type-checking options. */
+    "noImplicitAny": false,
+    /* Raise error on expressions and declarations with an implied 'any' type. */
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/jsdom",
+      "vitest/globals"
+    ],
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    /* Skip type checking of declaration files. */
+    "forceConsistentCasingInFileNames": true,
+    /* Disallow inconsistently-cased references to the same file. */
+    "experimentalDecorators": true,
+    /* Enables experimental support for ES7 decorators. */
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  "exclude": [
+    "./node_modules"
+  ],
+  "include": [
+    "./@types/**/*.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
+  ]
+}

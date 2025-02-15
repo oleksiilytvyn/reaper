@@ -1,4 +1,4 @@
-import { ICommand } from "../commands";
+import { ICommand } from "~/commands";
 import _ from "lodash";
 
 export type ReaperEvent = () => void;

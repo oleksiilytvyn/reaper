@@ -3,15 +3,58 @@ import { ChunkNode } from "./chunk";
 import { ReadRPPChunk, StringifyRPPNode } from "./helpers";
 
 /**
+ * Read from string
+ * 
+ * @param input
+ */
+export async function readReaperString(input: string): Promise<ChunkNode> {
+   try {
+      const chunk = ReadRPPChunk(input);
+
+      if (!chunk){
+         return Promise.reject();
+      }
+   
+      return chunk;
+   } catch (error){
+      return Promise.reject();
+   }
+}
+
+/**
  * Open Reaper file
  *
  * @param filename Path to file
  */
-export async function readReaperFile(filename: string): Promise<ChunkNode | null> {
-   const data = await fs.readFile(filename);
-   const lines = data.toString().split('\n');
+export async function readReaperFile(filename: string): Promise<ChunkNode> {
+   try {
+      const data = await fs.readFile(filename);
+      const lines = data.toString();
+      const chunk = ReadRPPChunk(lines);
+      
+      if (!chunk){
+         return Promise.reject();
+      }
+      
+      return chunk;
+   } catch (error) {
+      return Promise.reject(error);
+   }
+}
 
-   return ReadRPPChunk(lines);
+/**
+ * Write Reaper project tor string
+ * 
+ * @param root
+ */
+export async function writeReaperString(root: ChunkNode): Promise<string> {
+   try {
+      const str = StringifyRPPNode(root);
+
+      return Promise.resolve(str);
+   } catch (error) {
+      return Promise.reject(`Writing to string failed`);
+   }
 }
 
 /**
@@ -20,20 +63,20 @@ export async function readReaperFile(filename: string): Promise<ChunkNode | null
  * @param filename Path to file
  * @param root Reaper project instance
  */
-export async function writeReaperFile(filename: string, root: ChunkNode): Promise<[boolean, string]> {
+export async function writeReaperFile(filename: string, root: ChunkNode): Promise<void> {
    if (!filename)
-      return [false, "No file name"];
+      return Promise.reject("No file name");
 
    if (!root)
-      return [false, "No chunk passed"];
-
-   const str = StringifyRPPNode(root);
+      return Promise.reject("No chunk passed");
 
    try {
+      const str = StringifyRPPNode(root);
+
       await fs.writeFile(filename, str);
 
-      return [true, 'File successfully created'];
+      return Promise.resolve();
    } catch (error) {
-      return [false, `Writing to file failed\n${filename}`];
+      return Promise.reject(`Writing to file failed\n${filename}`);
    }
 }

@@ -1,15 +1,20 @@
-import { Token, tokenize } from "./token";
+import { Token } from "./token";
 import { ChunkNode } from "./chunk";
+import { toSafeString } from "~/utils";
+import { tokenize } from './helpers';
 
+/**
+ * Basic Node in Reaper file format
+ * 
+ * @class
+ */
 export class Node {
-
    public parent: Node | null = null;
    public line: string = '';
    public tokens: Token[] = [];
    public children: Node[] = [];
 
    public constructor() {
-
    }
 
    public getTokens(): Token[] {
@@ -40,7 +45,7 @@ export class Node {
       for (let index = 0; index < tokens.length; index++) {
          let token = tokens[index];
 
-         lines.push(token.toSafeString(token.getString()));
+         lines.push(toSafeString(token.getString()));
       }
 
       return lines;
@@ -52,9 +57,15 @@ export class Node {
 
       return node;
    }
-
-
-   // TODO: Remove node from parent and self destruct
+   
    public remove(): void {
+      if (!this.parent)
+         return;
+
+      const index = this.parent.children.indexOf(this);
+
+      if (index >= 0){
+         this.parent.children = this.parent.children.splice(index, 1);
+      }
    }
 }

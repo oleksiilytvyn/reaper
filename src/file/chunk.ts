@@ -129,15 +129,6 @@ export class Chunk extends Node {
       return this.children;
    }
 
-   // function RChunk:setTextNotes(str)
-   //   local tab = SplitMultilinesStrToTab(str)
-   //   self.children = {} -- reset children
-   //   for i, line in ipairs( tab ) do
-   //     AddRNode(self, "|" .. line)
-   //   end
-   //   return self.children
-   // end
-
    public removeNode(node: ChunkNode): boolean {
       for (let index = 0; index < this.children.length; index++) {
          let child = this.children[index];

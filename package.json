@@ -8,11 +8,10 @@
   "types": "./dist/index.d.ts",
   "module": "./dist/reaper.js",
   "sideEffects": false,
-  "private": true,
+  "private": false,
   "scripts": {
-    "dev": "vite",
+    "dev": "tsx src/test.ts",
     "build": "tsc && vite build",
-    "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts"
   },
   "keywords": [
@@ -29,6 +28,7 @@
     "@types/lodash": "^4.17.0",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20.12.7",
+    "tsx": "^4.19.2",
     "typescript": "^5.4.5",
     "vite": "^5.4.8",
     "vite-plugin-dts": "^4.2.3",

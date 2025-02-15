@@ -65,3 +65,23 @@ export function toColor(alpha: number, red: number, green: number, blue: number)
 
    return `${toHex(alpha)}${toHex(red)}${toHex(green)}${toHex(blue)}`;
 }
+
+/**
+ * Escape string for writing to Reaper file
+ * @param value
+ */
+export function toSafeString(value: string): string {
+   if (!value) return '""';
+
+   if (value.includes(' ')) {
+      if (value.includes('"')) {
+         return value.includes("'") 
+            ? `\`${value.replaceAll('`', "'")}\`` 
+            : `'${value}'`;
+      }
+
+      return `"${value}"`;
+   }
+
+   return value;
+}

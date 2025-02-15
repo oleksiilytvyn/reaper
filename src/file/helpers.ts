@@ -13,36 +13,12 @@ export function isWhiteSpace(value: string): boolean {
 }
 
 /**
- * Remove trailing and leading whitespace from string.
- *
- * @param value Value to trim
- */
-export function trim(value: string): string {
-   // return s:gsub("^%s*(.-)%s*$", "%1")
-
-   return _.trim(value);
-}
-
-/**
  *
  * @param value
  */
 export function splitLines(value: string): string[] {
-   let t: string[] = [];
-   const expression = /[^\n]*/;
-   const lines = value.split(expression);
-
-   for (let i = 0; i < lines.length; i++) {
-      // remove empty lines
-      if (lines[i] === '')
-         continue;
-
-      t.push(lines[i]);
-   }
-
-   return t;
+   return value.split(/\r?\n/).filter(x => x !== '');
 }
-
 
 export function StringifyRPPNode(node: Chunk | Node): string {
    return TableRPPNode(node).join('');
@@ -89,17 +65,12 @@ export function ReadRPPChunk(input: string | string[]): ChunkNode | null {
    let root: ChunkNode | null = null;
    let chunk: Chunk | null = null;
    let parent: Node | null = null;
-   let lines: string[] = [];
-
-   // Prepare input lines as table
-   if (typeof input === 'string') {
-      lines = splitLines(input);
-   } else {
-      lines = input; // split input multiline str as table
-   }
+   let lines: string[] = typeof input === 'string' 
+      ? splitLines(input)
+      : input;
 
    for (let index = 0; index < lines.length; index++) {
-      let line = trim(lines[index]); // ignore surrounding white space
+      let line = lines[index].trim(); // ignore surrounding white space
       let first = line[0];
 
       // Is this line a node or a chunk?
@@ -118,14 +89,10 @@ export function ReadRPPChunk(input: string | string[]): ChunkNode | null {
       } else if (first === '>') {
          parent = parent!.parent;
       } else {
-         if (!parent) {
-            // return false, "Cannot add new node to nil parent" .. line
-         }
-
          let node = new Node();
          node.line = line;
 
-         parent!.addNode(node);
+         parent?.addNode(node);
       }
    }
 
@@ -189,9 +156,71 @@ export function AddRNode(parent: Node, tab: string[]): Node {
    return parent.addNode(chunk);
 }
 
-export function AddRToken(node, tab: string[]) {
+export function AddRToken(node: Node, tab: string[]): Token[] {
    const tokens = CreateRTokens(tab);
    node.tokens = tokens;
+
+   return tokens;
+}
+
+/**
+ * Convert string to list of tokens
+ * 
+ * @param line
+ */
+export function tokenize(line: string): Token[] {
+   let index = 0;
+   let tokens: Token[] = [];
+
+   while (index <= line.length) {
+      let buff = '';
+      let c = '';
+
+      // Ignore white space
+      while (index <= line.length) {
+         c = line.charAt(index);
+         if (!isWhiteSpace(c)) {
+            break;
+         }
+         index++;
+      }
+
+      // Check if next character is a quote
+      c = line.charAt(index);
+      let quote = false;
+      let quoteChar = '0';
+
+      if (c === '\'' || c === '"' || c === '`') {
+         quote = true;
+         quoteChar = c;
+      } else {
+         buff += c;
+      }
+      index++;
+
+      // Read till quote or whitespace
+      while (index <= line.length) {
+         c = line.charAt(index);
+         index++; // Fixed increment
+
+         if (quote) {
+            if (c === quoteChar) {
+               break;
+            } else {
+               buff += c;
+            }
+         } else {
+            if (isWhiteSpace(c)) {
+               break;
+            } else {
+               buff += c;
+            }
+         }
+      }
+
+      // At this point, buff is the next token
+      tokens.push(new Token(buff));
+   }
 
    return tokens;
 }

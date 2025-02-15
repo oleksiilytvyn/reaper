@@ -1,7 +1,13 @@
-import { Token } from "./token";
+import { Token, TokenType } from "./token";
 import { ChunkNode } from "./chunk";
 import { toSafeString } from "~/utils";
 import { tokenize } from './helpers';
+
+export enum NodeType {
+   Track = 'TRACKID',
+   Guid = 'GUID',
+   Iguid = 'IGUID'
+}
 
 /**
  * Basic Node in Reaper file format
@@ -14,11 +20,12 @@ export class Node {
    public tokens: Token[] = [];
    public children: Node[] = [];
 
-   public constructor() {
+   public constructor(line: string = '') {
+      this.line = line;
+      this.tokens = tokenize(line);
    }
 
    public getTokens(): Token[] {
-      // TODO: Check if tokens parsed
       if (!this.tokens) {
          this.tokens = tokenize(this.line);
       }
@@ -31,11 +38,7 @@ export class Node {
    }
 
    public getName(): string {
-      return this.getToken(0).getString();
-   }
-
-   public getParam(index: number): Token {
-      return this.getToken(index);
+      return this.getToken(0).value();
    }
 
    public getTokensAsLine(): string[] {
@@ -45,7 +48,7 @@ export class Node {
       for (let index = 0; index < tokens.length; index++) {
          let token = tokens[index];
 
-         lines.push(toSafeString(token.getString()));
+         lines.push(toSafeString(token.value()));
       }
 
       return lines;
@@ -67,5 +70,20 @@ export class Node {
       if (index >= 0){
          this.parent.children = this.parent.children.splice(index, 1);
       }
+   }
+
+   /**
+    * Print node in human-readable format
+    */
+   public toString(): string {
+      const tokens = this.tokens.map(x => x.toString()).join('; ');
+
+      if (this.children.length == 0)
+         return `Node (${tokens})`;
+
+      const children = this.children.map(x => x.toString().split('\n').map(x => `  ${x}`).join('\n'))
+         .join("\n");
+
+      return `Node (${tokens})\n${children}`;
    }
 }

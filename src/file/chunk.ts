@@ -1,4 +1,4 @@
-import { AddRNode, ReadRPPChunk, splitLines, StringifyRPPNode } from "./helpers";
+import { createReaperNode, parseReaperString, splitLines, stringifyReaperNode } from "./helpers";
 import { Node } from './node'
 
 export type ChunkNode = Node | Chunk;
@@ -10,8 +10,8 @@ export class Chunk extends Node {
    public parent: ChunkNode | null = null;
    public children: ChunkNode[] = [];
 
-   public constructor() {
-      super();
+   public constructor(line: string = '') {
+      super(line);
    }
 
    public findFirstNodeByName(name: string, start: number = -1, end: number = -1): ChunkNode | null {
@@ -123,7 +123,7 @@ export class Chunk extends Node {
       this.children = []; // Reset nodes
 
       for (let index = 0; index < tab.length; index++) {
-         AddRNode(this, [`|${tab[index]}`]);
+         this.addNode(createReaperNode([`|${tab[index]}`]));
       }
 
       return this.children;
@@ -158,7 +158,7 @@ export class Chunk extends Node {
 
    public copy(parent: Node | null = null): Node | null {
       // TODO: Review this code
-      let chunk = ReadRPPChunk(StringifyRPPNode(this));
+      let chunk = parseReaperString(stringifyReaperNode(this));
       parent = parent || this.parent;
 
       if (chunk !== null && parent !== null) {
@@ -168,4 +168,18 @@ export class Chunk extends Node {
       return null;
    }
 
+   /**
+    * Print chunk in human-readable format
+    */
+   public toString(): string {
+      const tokens = this.tokens.map(x => x.toString()).join('; ');
+      
+      if (this.children.length == 0)
+         return `Chunk (${tokens})`;
+
+      const children = this.children.map(x => x.toString().split('\n').map(x => `  ${x}`).join('\n'))
+         .join("\n");
+
+      return `Chunk (${tokens})\n${children}`;
+   }
 }

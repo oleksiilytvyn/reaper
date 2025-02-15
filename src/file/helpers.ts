@@ -13,21 +13,27 @@ export function isWhiteSpace(value: string): boolean {
 }
 
 /**
- *
+ * Split lines and remove empty lines
+ * 
  * @param value
  */
 export function splitLines(value: string): string[] {
    return value.split(/\r?\n/).filter(x => x !== '');
 }
 
-export function StringifyRPPNode(node: Chunk | Node): string {
-   return TableRPPNode(node).join('');
+/**
+ * Convert Node to string in Reaper format
+ * @param node
+ * @constructor
+ */
+export function stringifyReaperNode(node: Chunk | Node): string {
+   return stringifyNode(node).join('');
 }
 
 /**
- * Stringify a Chunk
+ * Stringify node
  */
-export function TableRPPNode(node: Node, indent: number = 0, tab: string[] = []): string[] {
+function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): string[] {
    let indentations: string[] = _.range(10).map(x => _.repeat('  ', x));
 
    tab.push(indentations[indent]);
@@ -36,8 +42,8 @@ export function TableRPPNode(node: Node, indent: number = 0, tab: string[] = [])
       tab.push('<') // Open chunk
    }
 
-   if (node.tokens) {
-      tab.push.apply(node.getTokensAsLine());
+   if (node.tokens && node.tokens.length > 0) {
+      tab.push(...node.getTokensAsLine());
    } else {
       tab.push(node.line);
    }
@@ -46,11 +52,10 @@ export function TableRPPNode(node: Node, indent: number = 0, tab: string[] = [])
 
    if (node instanceof Chunk) {
       for (let index = 0; index < node.children.length; index++) {
-         TableRPPNode(node.children[index], indent + 1, tab); // TODO:
+         stringifyNode(node.children[index], indent + 1, tab);
       }
 
-      tab.push(indentations[indent]);
-      tab.push(">\n");
+      tab.push(indentations[indent], ">\n");
    }
 
    return tab;
@@ -61,7 +66,7 @@ export function TableRPPNode(node: Node, indent: number = 0, tab: string[] = [])
  * @param input
  * @constructor
  */
-export function ReadRPPChunk(input: string | string[]): ChunkNode | null {
+export function parseReaperString(input: string | string[]): ChunkNode | null {
    let root: ChunkNode | null = null;
    let chunk: Chunk | null = null;
    let parent: Node | null = null;
@@ -75,8 +80,7 @@ export function ReadRPPChunk(input: string | string[]): ChunkNode | null {
 
       // Is this line a node or a chunk?
       if (first == "<") {
-         chunk = new Chunk();
-         chunk.line = line.substring(1);
+         chunk = new Chunk(line.substring(1));
 
          if (parent !== null)
             parent.addNode(chunk);
@@ -89,10 +93,7 @@ export function ReadRPPChunk(input: string | string[]): ChunkNode | null {
       } else if (first === '>') {
          parent = parent!.parent;
       } else {
-         let node = new Node();
-         node.line = line;
-
-         parent?.addNode(node);
+         parent?.addNode(new Node(line));
       }
    }
 
@@ -102,65 +103,51 @@ export function ReadRPPChunk(input: string | string[]): ChunkNode | null {
 /**
  * Create a RPP from scratch.
  * You need to write it to file after you have added the chunk you want.
- *
  */
-export function CreateRPP(
+export function createReaperProject(
    version: string = '0.1',
    system: string = '6.21/win64',
-   time: string = ''): Chunk { // TODO: Extra parameter could be added
-   if (time === '')
-      time = (new Date()).toLocaleTimeString(); // TODO: Check correct date format
+   time: number = 0): Chunk 
+{ 
+   if (time === 0)
+      time = Date.now();
 
-   return CreateRChunk(["REAPER_PROJECT", version, system, time]);
+   return createReaperChunk(["REAPER_PROJECT", version, system, time.toString()]);
 }
 
-export function CreateRTokens(value: string[]): Token[] {
-   let tokens: Token[] = [];
-
-   for (let index = 0; index < value.length; index++) {
-      tokens.push(new Token(value[index].toString()));
-   }
-
-   return tokens;
+/**
+ * 
+ * @param value
+ */
+export function createReaperTokens(value: string[]): Token[] {
+   return value.map(x => new Token(x));
 }
 
-export function CreateRChunk(tab: string[]): Chunk {
-   const tokens = CreateRTokens(tab);
-   const chunk = new Chunk();
-   chunk.tokens = tokens;
+/**
+ * 
+ * @param tab
+ */
+export function createReaperChunk(tab: string[]): Chunk {
+   const chunk = new Chunk('');
+   chunk.tokens = createReaperTokens(tab);
 
    return chunk;
 }
 
-export function CreateRNode(value: string[]): Node {
+/**
+ * 
+ * @param value
+ */
+export function createReaperNode(value: string[]): Node {
    const node = new Node();
 
    if (value.length > 1) {
-      node.tokens = CreateRTokens(value);
+      node.tokens = createReaperTokens(value);
    } else {
       node.line = value[0];
    }
 
    return node;
-}
-
-export function AddRChunk(parent: Node, tab: string[]): Node {
-   const chunk = CreateRChunk(tab)
-
-   return parent.addNode(chunk);
-}
-
-export function AddRNode(parent: Node, tab: string[]): Node {
-   const chunk = CreateRNode(tab)
-
-   return parent.addNode(chunk);
-}
-
-export function AddRToken(node: Node, tab: string[]): Token[] {
-   const tokens = CreateRTokens(tab);
-   node.tokens = tokens;
-
-   return tokens;
 }
 
 /**
@@ -171,55 +158,41 @@ export function AddRToken(node: Node, tab: string[]): Token[] {
 export function tokenize(line: string): Token[] {
    let index = 0;
    let tokens: Token[] = [];
+   const length = line.length;
 
-   while (index <= line.length) {
-      let buff = '';
-      let c = '';
+   while (index <= length) {
+      let buffer = '';
+      let char = '';
 
-      // Ignore white space
-      while (index <= line.length) {
-         c = line.charAt(index);
-         if (!isWhiteSpace(c)) {
-            break;
-         }
+      while (index <= length && isWhiteSpace(line[index])) {
          index++;
       }
 
-      // Check if next character is a quote
-      c = line.charAt(index);
+      char = line[index];
       let quote = false;
       let quoteChar = '0';
 
-      if (c === '\'' || c === '"' || c === '`') {
+      if (char === '\'' || char === '"' || char === '`') {
          quote = true;
-         quoteChar = c;
+         quoteChar = char;
       } else {
-         buff += c;
+         buffer += char;
       }
+
       index++;
 
-      // Read till quote or whitespace
-      while (index <= line.length) {
-         c = line.charAt(index);
-         index++; // Fixed increment
+      while (index <= length) {
+         char = line[index];
+         index++;
 
          if (quote) {
-            if (c === quoteChar) {
-               break;
-            } else {
-               buff += c;
-            }
-         } else {
-            if (isWhiteSpace(c)) {
-               break;
-            } else {
-               buff += c;
-            }
-         }
+            if (char === quoteChar) break;
+         } else if (isWhiteSpace(char)) break;
+         
+         buffer += char;
       }
 
-      // At this point, buff is the next token
-      tokens.push(new Token(buff));
+      tokens.push(new Token(buffer));
    }
 
    return tokens;

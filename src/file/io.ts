@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import { ChunkNode } from "./chunk";
-import { ReadRPPChunk, StringifyRPPNode } from "./helpers";
+import { parseReaperString, stringifyReaperNode } from "./helpers";
 
 /**
  * Read from string
@@ -9,7 +9,7 @@ import { ReadRPPChunk, StringifyRPPNode } from "./helpers";
  */
 export async function readReaperString(input: string): Promise<ChunkNode> {
    try {
-      const chunk = ReadRPPChunk(input);
+      const chunk = parseReaperString(input);
 
       if (!chunk){
          return Promise.reject();
@@ -29,8 +29,7 @@ export async function readReaperString(input: string): Promise<ChunkNode> {
 export async function readReaperFile(filename: string): Promise<ChunkNode> {
    try {
       const data = await fs.readFile(filename);
-      const lines = data.toString();
-      const chunk = ReadRPPChunk(lines);
+      const chunk = readReaperString(data.toString());
       
       if (!chunk){
          return Promise.reject();
@@ -49,7 +48,7 @@ export async function readReaperFile(filename: string): Promise<ChunkNode> {
  */
 export async function writeReaperString(root: ChunkNode): Promise<string> {
    try {
-      const str = StringifyRPPNode(root);
+      const str = stringifyReaperNode(root);
 
       return Promise.resolve(str);
    } catch (error) {
@@ -71,9 +70,7 @@ export async function writeReaperFile(filename: string, root: ChunkNode): Promis
       return Promise.reject("No chunk passed");
 
    try {
-      const str = StringifyRPPNode(root);
-
-      await fs.writeFile(filename, str);
+      await fs.writeFile(filename, await writeReaperString(root));
 
       return Promise.resolve();
    } catch (error) {

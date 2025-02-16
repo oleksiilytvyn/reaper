@@ -10,7 +10,6 @@
   "sideEffects": false,
   "private": false,
   "scripts": {
-    "dev": "tsx src/test.ts",
     "build": "tsc && vite build",
     "test": "vitest run --config vitest.config.ts"
   },

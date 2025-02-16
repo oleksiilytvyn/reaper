@@ -1,6 +1,8 @@
 import _ from "lodash";
-import { Node } from "./node";
+import { Node, NodeType } from "./node";
 import { Token } from "./token";
+import { ProjectNode, NotesNode, TrackNode } from "~/file/nodes";
+import { toSafeString } from "~/utils";
 
 /**
  * Is the character a white space or a new line or a tab
@@ -42,7 +44,7 @@ function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): stri
    }
 
    if (node.tokens && node.tokens.length > 0) {
-      tab.push(...node.getTokensAsLine());
+      tab.push(node.tokens.map(token => toSafeString(token.value())).join(' '));
    } else {
       tab.push(node.line);
    }
@@ -79,8 +81,7 @@ export function parseReaperString(input: string | string[]): Node | null {
 
       // Is this line a node or a chunk?
       if (first == "<") {
-         chunk = new Node(line.substring(1));
-         chunk.isChunk = true;
+         chunk = getSpecificNode(line.substring(1), true);
 
          if (parent !== null)
             parent.addNode(chunk);
@@ -93,7 +94,7 @@ export function parseReaperString(input: string | string[]): Node | null {
       } else if (first === '>') {
          parent = parent!.parent;
       } else {
-         parent?.addNode(new Node(line));
+         parent?.addNode(getSpecificNode(line));
       }
    }
 
@@ -102,21 +103,30 @@ export function parseReaperString(input: string | string[]): Node | null {
 
 /**
  * Returns specific Node type based on first token
- * 
+ *
  * @param line
+ * @param isChunk
  */
-function getSpecificNode(line: string): Node {
+function getSpecificNode(line: string, isChunk: boolean = false): Node {
    const index = line.indexOf(' ');
    const type = index >= 0 ? line.substring(0, index) : line;
+   let cls = Node;
 
    switch (type){
-      default:
-         return new Node(line);
+      case NodeType.Project: cls = ProjectNode; break;
+      case NodeType.Notes: cls = NotesNode; break;
+      case NodeType.Track: cls = TrackNode; break;
    }
+   
+   const node = new cls(line);
+   node.isChunk = isChunk;
+   node.type = type as NodeType;
+
+   return node;
 }
 
 /**
- * Create a RPP from scratch.
+ * Create an RPP from scratch.
  * You need to write it to file after you have added the chunk you want.
  */
 export function createReaperProject(
@@ -179,7 +189,7 @@ export function tokenize(line: string): Token[] {
       let buffer = '';
       let char = '';
 
-      while (index <= length && isWhiteSpace(line[index])) {
+      while (index < length && isWhiteSpace(line[index])) {
          index++;
       }
 

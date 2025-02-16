@@ -19,9 +19,6 @@ export class Token {
       if (input === '')
          return TokenType.null;
 
-      // if (input == '0' || input == '1')
-      //    return TokenType.boolean;
-
       if (input.startsWith('{'))
          return TokenType.guid;
       
@@ -31,6 +28,9 @@ export class Token {
       return TokenType.string;
    }
 
+   /**
+    * 
+    */
    public value(): string
    public value(value: string): void
    public value(type: TokenType.null): null
@@ -60,12 +60,23 @@ export class Token {
          return this.getValue(type || TokenType.unknown);
       }
    }
-   
+
+   /**
+    * 
+    * @param input
+    * @param type
+    * @private
+    */
    private setValue(input: any, type: TokenType): void {
       this.type = type;
       this.token = input;
    }
 
+   /**
+    * 
+    * @param type
+    * @private
+    */
    private getValue(type: TokenType): any {
       switch (type){
          case TokenType.null:
@@ -88,7 +99,7 @@ export class Token {
     * Print token in human-readable format
     */
    public toString(){
-      return `${this.token}`;
+      return this.token;
    }
 }
 

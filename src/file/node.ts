@@ -1,11 +1,27 @@
-import { Token, TokenType } from "./token";
-import { toSafeString } from "~/utils";
+import { Token } from "./token";
 import { tokenize } from './helpers';
 
 export enum NodeType {
-   Track = 'TRACKID',
-   Guid = 'GUID',
-   Iguid = 'IGUID'
+   Project = 'REAPER_PROJECT',
+   Track = 'TRACK',
+   Fx = '',
+   Item = 'ITEM',
+   Source = 'SOURCE',
+   FxChain = 'FXCHAIN',
+   Vst = 'VST',
+   PluginAutomation = 'PARMENV',
+   ReceiveVolumeAutomation = 'AUXVOLENV',
+   Notes = 'NOTES',
+   VolumeAutomation = 'VOLENV2',
+   PanAutomation = 'PANENV2',
+   WidthAutomation = 'WIDTHENV2',
+   TempoAutomation = 'TEMPOENVEX',
+   Cursor = 'CURSOR',
+   Zoom = 'ZOOM',
+   Metronome = 'METRONOME',
+   Temp = 'TEMPO',
+   
+   Default = 'NODE'
 }
 
 /**
@@ -19,39 +35,11 @@ export class Node {
    public tokens: Token[] = [];
    public children: Node[] = [];
    public isChunk: boolean = false;
+   public type: NodeType = NodeType.Default;
 
    public constructor(line: string = '') {
       this.line = line;
       this.tokens = tokenize(line);
-   }
-
-   public getTokens(): Token[] {
-      if (!this.tokens) {
-         this.tokens = tokenize(this.line);
-      }
-
-      return this.tokens;
-   }
-
-   public getToken(index: number): Token {
-      return this.getTokens()[index];
-   }
-
-   public getName(): string {
-      return this.getToken(0).value();
-   }
-
-   public getTokensAsLine(): string[] {
-      let lines: string[] = [];
-      const tokens = this.getTokens();
-
-      for (let index = 0; index < tokens.length; index++) {
-         let token = tokens[index];
-
-         lines.push(toSafeString(token.value()));
-      }
-
-      return lines;
    }
 
    public addNode(node: Node): Node {
@@ -61,29 +49,18 @@ export class Node {
       return node;
    }
    
-   public remove(): void {
-      if (!this.parent)
-         return;
-
-      const index = this.parent.children.indexOf(this);
-
-      if (index >= 0){
-         this.parent.children = this.parent.children.splice(index, 1);
-      }
-   }
-
    /**
     * Print node in human-readable format
     */
    public toString(): string {
-      const tokens = this.tokens.map(x => x.toString()).join('; ');
+      const tokens = this.tokens.map(x => x.toString()).slice(1).join(' ');
 
       if (this.children.length == 0)
-         return `Node (${tokens})`;
+         return `${this.type} (${tokens})`;
 
       const children = this.children.map(x => x.toString().split('\n').map(x => `  ${x}`).join('\n'))
          .join("\n");
 
-      return `Node (${tokens})\n${children}`;
+      return `${this.type} (${tokens})\n${children}`;
    }
 }

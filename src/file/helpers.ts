@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { Chunk, ChunkNode } from "./chunk";
 import { Node } from "./node";
 import { Token } from "./token";
 
@@ -26,7 +25,7 @@ export function splitLines(value: string): string[] {
  * @param node
  * @constructor
  */
-export function stringifyReaperNode(node: Chunk | Node): string {
+export function stringifyReaperNode(node: Node): string {
    return stringifyNode(node).join('');
 }
 
@@ -38,7 +37,7 @@ function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): stri
 
    tab.push(indentations[indent]);
 
-   if (node instanceof Chunk) {
+   if (node.isChunk) {
       tab.push('<') // Open chunk
    }
 
@@ -50,7 +49,7 @@ function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): stri
 
    tab.push('\n');
 
-   if (node instanceof Chunk) {
+   if (node.isChunk) {
       for (let index = 0; index < node.children.length; index++) {
          stringifyNode(node.children[index], indent + 1, tab);
       }
@@ -66,9 +65,9 @@ function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): stri
  * @param input
  * @constructor
  */
-export function parseReaperString(input: string | string[]): ChunkNode | null {
-   let root: ChunkNode | null = null;
-   let chunk: Chunk | null = null;
+export function parseReaperString(input: string | string[]): Node | null {
+   let root: Node | null = null;
+   let chunk: Node | null = null;
    let parent: Node | null = null;
    let lines: string[] = typeof input === 'string' 
       ? splitLines(input)
@@ -80,7 +79,8 @@ export function parseReaperString(input: string | string[]): ChunkNode | null {
 
       // Is this line a node or a chunk?
       if (first == "<") {
-         chunk = new Chunk(line.substring(1));
+         chunk = new Node(line.substring(1));
+         chunk.isChunk = true;
 
          if (parent !== null)
             parent.addNode(chunk);
@@ -101,13 +101,28 @@ export function parseReaperString(input: string | string[]): ChunkNode | null {
 }
 
 /**
+ * Returns specific Node type based on first token
+ * 
+ * @param line
+ */
+function getSpecificNode(line: string): Node {
+   const index = line.indexOf(' ');
+   const type = index >= 0 ? line.substring(0, index) : line;
+
+   switch (type){
+      default:
+         return new Node(line);
+   }
+}
+
+/**
  * Create a RPP from scratch.
  * You need to write it to file after you have added the chunk you want.
  */
 export function createReaperProject(
    version: string = '0.1',
    system: string = '6.21/win64',
-   time: number = 0): Chunk 
+   time: number = 0): Node 
 { 
    if (time === 0)
       time = Date.now();
@@ -127,8 +142,8 @@ export function createReaperTokens(value: string[]): Token[] {
  * 
  * @param tab
  */
-export function createReaperChunk(tab: string[]): Chunk {
-   const chunk = new Chunk('');
+export function createReaperChunk(tab: string[]): Node {
+   const chunk = new Node('');
    chunk.tokens = createReaperTokens(tab);
 
    return chunk;

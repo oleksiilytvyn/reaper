@@ -4,11 +4,9 @@
 // TODO: https://mespotin.uber.space/Ultraschall/Reaper-Filetype-Descriptions.html
 
 import { Node } from './node'
-import { Chunk } from './chunk'
 import { Token } from './token';
 
 export default {
    Node,
-   Chunk,
-   Token,
+   Token
 };

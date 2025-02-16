@@ -1,5 +1,4 @@
 import { Token, TokenType } from "./token";
-import { ChunkNode } from "./chunk";
 import { toSafeString } from "~/utils";
 import { tokenize } from './helpers';
 
@@ -19,6 +18,7 @@ export class Node {
    public line: string = '';
    public tokens: Token[] = [];
    public children: Node[] = [];
+   public isChunk: boolean = false;
 
    public constructor(line: string = '') {
       this.line = line;
@@ -54,7 +54,7 @@ export class Node {
       return lines;
    }
 
-   public addNode(node: ChunkNode): ChunkNode {
+   public addNode(node: Node): Node {
       node.parent = this;
       this.children.push(node);
 

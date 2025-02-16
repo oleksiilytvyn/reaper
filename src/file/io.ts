@@ -1,13 +1,13 @@
 import fs from 'node:fs/promises';
-import { ChunkNode } from "./chunk";
-import { parseReaperString, stringifyReaperNode } from "./helpers";
+import { parseReaperString, stringifyReaperNode } from './helpers';
+import { Node } from './node';
 
 /**
  * Read from string
  * 
  * @param input
  */
-export async function readReaperString(input: string): Promise<ChunkNode> {
+export async function readReaperString(input: string): Promise<Node> {
    try {
       const chunk = parseReaperString(input);
 
@@ -26,7 +26,7 @@ export async function readReaperString(input: string): Promise<ChunkNode> {
  *
  * @param filename Path to file
  */
-export async function readReaperFile(filename: string): Promise<ChunkNode> {
+export async function readReaperFile(filename: string): Promise<Node> {
    try {
       const data = await fs.readFile(filename);
       const chunk = readReaperString(data.toString());
@@ -46,7 +46,7 @@ export async function readReaperFile(filename: string): Promise<ChunkNode> {
  * 
  * @param root
  */
-export async function writeReaperString(root: ChunkNode): Promise<string> {
+export async function writeReaperString(root: Node): Promise<string> {
    try {
       const str = stringifyReaperNode(root);
 
@@ -62,7 +62,7 @@ export async function writeReaperString(root: ChunkNode): Promise<string> {
  * @param filename Path to file
  * @param root Reaper project instance
  */
-export async function writeReaperFile(filename: string, root: ChunkNode): Promise<void> {
+export async function writeReaperFile(filename: string, root: Node): Promise<void> {
    if (!filename)
       return Promise.reject("No file name");
 

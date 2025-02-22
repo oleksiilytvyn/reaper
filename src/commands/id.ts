@@ -23,7 +23,7 @@ export class IdCommand extends Command<IdCommandResponse> {
          throw new Error(`Command ID doesn't match required format`);
       }
 
-      super(`${id}`, `${id}`);
+      super(`${id}`);
 
       this.id = id;
    }

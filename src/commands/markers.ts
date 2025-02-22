@@ -13,7 +13,7 @@ export class MarkersCommand extends Command<MarkersCommandCommandResponse> {
    public type: CommandType = CommandType.Markers;
 
    public constructor() {
-      super('MARKER', 'MARKER');
+      super('MARKER');
    }
 
    public parse(tokens: string[][]): MarkersCommandCommandResponse {

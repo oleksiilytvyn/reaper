@@ -13,7 +13,7 @@ export class RegionsCommand extends Command<RegionsCommandCommandResponse> {
    public type: CommandType = CommandType.Regions;
 
    public constructor() {
-      super('REGION', 'REGION');
+      super('REGION');
    }
 
    public parse(tokens: string[][]): RegionsCommandCommandResponse {

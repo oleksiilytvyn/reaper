@@ -11,7 +11,7 @@ export class TrackCountCommand extends Command<TrackCountResponse> {
    public type: CommandType = CommandType.TrackCount;
 
    public constructor() {
-      super('NTRACK', 'NTRACK');
+      super('NTRACK');
    }
 
    public parse(tokens: string[][]): TrackCountResponse {

@@ -15,7 +15,7 @@ export class TransportCommand extends Command<TransportCommandResponse> {
    public type: CommandType = CommandType.Transport;
 
    public constructor() {
-      super('TRANSPORT', 'TRANSPORT');
+      super('TRANSPORT');
    }
 
    public parse(tokens: string[][]): TransportCommandResponse {

@@ -11,9 +11,7 @@ export class UndoCommand extends Command<UndoCommandResponse> {
    public message: string;
 
    public constructor(message: string) {
-      let cmd = `SET/UNDO/${message}`;
-
-      super(cmd, cmd);
+      super(`SET/UNDO/${message}`);
 
       this.message = message;
    }

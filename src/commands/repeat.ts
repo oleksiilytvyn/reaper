@@ -11,9 +11,7 @@ export class SetRepeatCommand extends Command<SetRepeatCommandResponse> {
    public repeat: RepeatType;
 
    public constructor(type: RepeatType) {
-      let cmd = `SET/REPEAT/${type}`;
-
-      super(cmd, cmd);
+      super(`SET/REPEAT/${type}`);
 
       this.repeat = type;
    }

@@ -1,3 +1,9 @@
+
+/**
+ * Reaper command base interface
+ * 
+ * @interface
+ */
 export interface ICommand {
    command: string;
    response: any;
@@ -23,23 +29,43 @@ export abstract class Command<TResponse> implements ICommand {
    public response: TResponse | null = null; // Property set form response parse() method by client
    public type: CommandType = CommandType.Unknown;
 
-   protected constructor(command: string, token: string) {
+   /**
+    * 
+    * @param command Command name
+    * @param token If token not specified explicitly command is used as token
+    * @protected
+    */
+   protected constructor(command: string, token?: string) {
       this.command = command;
-      this.token = token;
+      this.token = token ?? command;
    }
 
+   /**
+    * 
+    * @param tokens
+    */
    public abstract parse(tokens: string[][]): TResponse;
 
+   /**
+    * Get OSC path
+    */
    public oscPath(): string {
-      return this.command;
+      return this.command.toLowerCase();
    }
 
+   /**
+    * Get OSC args
+    */
    public oscArgs(): ({ type: string; value: boolean | number | string })[] {
       // THIS METHOD SHOULD BE IMPLEMENTED BY EACH COMMAND
-      return [];
+      throw new Error("Method not implemented");
    }
 }
 
+/**
+ * Command Type
+ * @enum
+ */
 export enum CommandType {
    Unknown = 'unknown',
    Id = 'id',

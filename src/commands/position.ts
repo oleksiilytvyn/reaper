@@ -42,7 +42,7 @@ export class SetPositionCommand extends Command<SetPositionCommandResponse> {
             throw new Error('Unable to set playback position as arguments are incompatible');
       }
 
-      super(cmd, cmd);
+      super(cmd);
 
       this.value = value;
       this.position = type;

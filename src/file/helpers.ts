@@ -1,15 +1,92 @@
 import _ from "lodash";
-import { Node, NodeType } from "./node";
+import fs from 'node:fs/promises';
 import { Token } from "./token";
-import { ProjectNode, NotesNode, TrackNode } from "~/file/nodes";
 import { toSafeString } from "~/utils";
+import { Node, NodeType } from "./node";
+import { ProjectNode, NotesNode, TrackNode } from "~/file/nodes";
+
+/**
+ * Read from string
+ *
+ * @param input
+ */
+export async function readReaperString(input: string): Promise<Node> {
+   try {
+      const chunk = parseReaperString(input);
+
+      if (!chunk){
+         return Promise.reject();
+      }
+
+      return chunk;
+   } catch (error){
+      return Promise.reject();
+   }
+}
+
+/**
+ * Open Reaper file
+ *
+ * @param filename Path to file
+ */
+export async function readReaperFile(filename: string): Promise<Node> {
+   try {
+      const data = await fs.readFile(filename);
+      const chunk = readReaperString(data.toString());
+
+      if (!chunk){
+         return Promise.reject();
+      }
+
+      return chunk;
+   } catch (error) {
+      return Promise.reject(error);
+   }
+}
+
+/**
+ * Write Reaper project tor string
+ *
+ * @param root
+ */
+export async function writeReaperString(root: Node): Promise<string> {
+   try {
+      const str = stringifyNode(root).join('');
+
+      return Promise.resolve(str);
+   } catch (error) {
+      return Promise.reject(`Writing to string failed`);
+   }
+}
+
+/**
+ * Write Reaper file from project instance
+ *
+ * @param filename Path to file
+ * @param root Reaper project instance
+ */
+export async function writeReaperFile(filename: string, root: Node): Promise<void> {
+   if (!filename)
+      return Promise.reject("No file name");
+
+   if (!root)
+      return Promise.reject("No chunk passed");
+
+   try {
+      await fs.writeFile(filename, await writeReaperString(root));
+
+      return Promise.resolve();
+   } catch (error) {
+      return Promise.reject(`Writing to file failed\n${filename}`);
+   }
+}
 
 /**
  * Is the character a white space or a new line or a tab
  *
  * @param value Value to check
  */
-export function isWhiteSpace(value: string): boolean {
+function isWhiteSpace(value: string): boolean {
    return _.trim(value) === '';
 }
 
@@ -18,17 +95,8 @@ export function isWhiteSpace(value: string): boolean {
  * 
  * @param value
  */
-export function splitLines(value: string): string[] {
+function splitLines(value: string): string[] {
    return value.split(/\r?\n/).filter(x => x !== '');
-}
-
-/**
- * Convert Node to string in Reaper format
- * @param node
- * @constructor
- */
-export function stringifyReaperNode(node: Node): string {
-   return stringifyNode(node).join('');
 }
 
 /**
@@ -67,7 +135,7 @@ function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): stri
  * @param input
  * @constructor
  */
-export function parseReaperString(input: string | string[]): Node | null {
+function parseReaperString(input: string | string[]): Node | null {
    let root: Node | null = null;
    let chunk: Node | null = null;
    let parent: Node | null = null;
@@ -112,6 +180,7 @@ function getSpecificNode(line: string, isChunk: boolean = false): Node {
    const type = index >= 0 ? line.substring(0, index) : line;
    let cls = Node;
 
+   // TODO: Extend list of types
    switch (type){
       case NodeType.Project: cls = ProjectNode; break;
       case NodeType.Notes: cls = NotesNode; break;
@@ -137,42 +206,10 @@ export function createReaperProject(
    if (time === 0)
       time = Date.now();
 
-   return createReaperChunk(["REAPER_PROJECT", version, system, time.toString()]);
-}
-
-/**
- * 
- * @param value
- */
-export function createReaperTokens(value: string[]): Token[] {
-   return value.map(x => new Token(x));
-}
-
-/**
- * 
- * @param tab
- */
-export function createReaperChunk(tab: string[]): Node {
    const chunk = new Node('');
-   chunk.tokens = createReaperTokens(tab);
+   chunk.tokens =  (["REAPER_PROJECT", version, system, time.toString()]).map(x => new Token(x));
 
    return chunk;
-}
-
-/**
- * 
- * @param value
- */
-export function createReaperNode(value: string[]): Node {
-   const node = new Node();
-
-   if (value.length > 1) {
-      node.tokens = createReaperTokens(value);
-   } else {
-      node.line = value[0];
-   }
-
-   return node;
 }
 
 /**

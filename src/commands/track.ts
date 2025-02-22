@@ -14,10 +14,8 @@ export class TrackCommand extends Command<TrackResponse[]> {
    public end: number | undefined;
 
    public constructor(type: TrackSelectionType, index: number, end?: number) {
-      let cmd = 'TRACK';
-
       // `TRACK`, `TRACK/<index>`, `TRACK/<start>-<end>`
-      super(cmd, cmd);
+      super('TRACK');
 
       this.end = end;
       this.index = index;

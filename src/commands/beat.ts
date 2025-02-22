@@ -10,7 +10,7 @@ export class BeatCommand extends Command<BeatCommandResponse> {
    public type: CommandType = CommandType.Beat;
 
    public constructor() {
-      super('BEATPOS', 'BEATPOS');
+      super('BEATPOS');
    }
 
    public parse(tokens: string[][]): BeatCommandResponse {

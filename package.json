@@ -5,10 +5,15 @@
   "author": "Oleksii Lytvyn",
   "description": "Reaper HTTP client",
   "type": "module",
+  "main": "./dist/reaper.cjs",
   "types": "./dist/index.d.ts",
   "module": "./dist/reaper.js",
   "sideEffects": false,
   "private": false,
+  "exports": {
+    "import": "./dist/reaper.js",
+    "require": "./dist/reaper.cjs"
+  },
   "scripts": {
     "build": "tsc && vite build",
     "test": "vitest run --config vitest.config.ts"

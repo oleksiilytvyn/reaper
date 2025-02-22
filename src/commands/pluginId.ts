@@ -20,7 +20,7 @@ export class PluginIdCommand extends Command<PluginIdCommandResponse> {
          throw new Error(`Plugin ID doesn't match required format`);
       }
 
-      super(`${id}`, `${id}`);
+      super(`${id}`);
 
       this.id = id;
    }

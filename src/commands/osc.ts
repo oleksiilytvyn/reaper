@@ -12,9 +12,7 @@ export class OscCommand extends Command<OscCommandResponse> {
    public value: string;
 
    public constructor(message: string, value: string = '') {
-      let cmd = `OSC/${message}${!!value ? ':' + value : ''}`;
-
-      super(cmd, cmd);
+      super(`OSC/${message}${!!value ? ':' + value : ''}`);
 
       this.value = value;
       this.message = message;

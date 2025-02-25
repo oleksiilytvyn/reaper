@@ -1,9 +1,10 @@
 import _ from "lodash";
 import fs from 'node:fs/promises';
 import { Token } from "./token";
-import { toSafeString } from "~/utils";
-import { Node, NodeType } from "./node";
-import { ProjectNode, NotesNode, TrackNode } from "~/file/nodes";
+import { isWhiteSpace, splitLines, toSafeString } from "~/utils";
+import { Node } from "./node";
+import { NodeType } from './nodetype';
+import { ProjectNode, NotesNode, TrackNode } from "./nodes";
 
 /**
  * Read from string
@@ -82,24 +83,6 @@ export async function writeReaperFile(filename: string, root: Node): Promise<voi
 }
 
 /**
- * Is the character a white space or a new line or a tab
- *
- * @param value Value to check
- */
-function isWhiteSpace(value: string): boolean {
-   return _.trim(value) === '';
-}
-
-/**
- * Split lines and remove empty lines
- * 
- * @param value
- */
-function splitLines(value: string): string[] {
-   return value.split(/\r?\n/).filter(x => x !== '');
-}
-
-/**
  * Stringify node
  */
 function stringifyNode(node: Node, indent: number = 0, tab: string[] = []): string[] {
@@ -143,12 +126,14 @@ function parseReaperString(input: string | string[]): Node | null {
       ? splitLines(input)
       : input;
 
+   // TODO: Validate string while parsing
    for (let index = 0; index < lines.length; index++) {
       let line = lines[index].trim(); // ignore surrounding white space
       let first = line[0];
 
+      // TODO: There are Chunk, Node, Text and Base64
       // Is this line a node or a chunk?
-      if (first == "<") {
+      if (first === "<") {
          chunk = getSpecificNode(line.substring(1), true);
 
          if (parent !== null)
@@ -207,7 +192,7 @@ export function createReaperProject(
       time = Date.now();
 
    const chunk = new Node('');
-   chunk.tokens =  (["REAPER_PROJECT", version, system, time.toString()]).map(x => new Token(x));
+   chunk.tokens =  ([NodeType.Project, version, system, time.toString()]).map(x => new Token(x));
 
    return chunk;
 }

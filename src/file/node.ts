@@ -1,28 +1,6 @@
 import { Token } from "./token";
 import { tokenize } from './helpers';
-
-export enum NodeType {
-   Project = 'REAPER_PROJECT',
-   Track = 'TRACK',
-   Fx = '',
-   Item = 'ITEM',
-   Source = 'SOURCE',
-   FxChain = 'FXCHAIN',
-   Vst = 'VST',
-   PluginAutomation = 'PARMENV',
-   ReceiveVolumeAutomation = 'AUXVOLENV',
-   Notes = 'NOTES',
-   VolumeAutomation = 'VOLENV2',
-   PanAutomation = 'PANENV2',
-   WidthAutomation = 'WIDTHENV2',
-   TempoAutomation = 'TEMPOENVEX',
-   Cursor = 'CURSOR',
-   Zoom = 'ZOOM',
-   Metronome = 'METRONOME',
-   Temp = 'TEMPO',
-   
-   Default = 'NODE'
-}
+import { NodeType } from "./nodetype";
 
 /**
  * Basic Node in Reaper file format

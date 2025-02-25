@@ -1,7 +1,8 @@
-import { NodeBase } from "~/file/nodes/base";
+import { NodeBase } from './base';
 
+/**
+ * @class
+ */
 export class ItemNode extends NodeBase {
-   constructor(line: string) {
-      super(line);
-   }
+
 }

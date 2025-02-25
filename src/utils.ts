@@ -1,28 +1,32 @@
+import _ from "lodash";
+
+export type RgbaColor = `rgba(${number},${number},${number},${number})`;
+export type PanString = 'center' | `${number}%L` | `${number}%R`;
+export type VolumeString = '-inf dB' | `${number} dB`;
+
 /**
  * @function
  * */
-export function toVolumeString(volume: string): string {
+export function toVolumeString(volume: string): VolumeString {
    let result = parseFloat(volume);
 
    if (result < 0.00000002980232)
-      return "-inf dB";
+      return '-inf dB';
 
    result = Math.log(result) * 8.68588963806;
 
-   return result.toFixed(2) + " dB";
+   return (result.toFixed(2) + ' dB') as VolumeString;
 }
 
 /**
+ * Convert number to pan string
  * @function
  * */
-export function toPanString(pan: number): string {
+export function toPanString(pan: number): PanString {
    if (Math.abs(pan) < 0.001)
-      return "center";
+      return 'center';
 
-   if (pan > 0)
-      return (pan * 100).toFixed(0) + "%R";
-
-   return (pan * -100).toFixed(0) + "%L";
+   return ((pan * 100 * (pan > 0 ? 1 : -1)).toFixed(0) + `%${pan > 0 ? 'R' : 'L'}`) as PanString;
 }
 
 /**
@@ -39,7 +43,7 @@ export function unescapeString(value: any): string {
  * Parse color in Reaper format and return color in rgba() format
  * @function
  */
-export function parseColor(value: string): string {
+export function parseColor(value: string): RgbaColor {
    if (!value || value == '0')
       return 'rgba(0,0,0,0)';
 
@@ -84,4 +88,22 @@ export function toSafeString(value: string): string {
    }
 
    return value;
+}
+
+/**
+ * Is the character a white space or a new line or a tab
+ *
+ * @param value Value to check
+ */
+export function isWhiteSpace(value: string): boolean {
+   return _.trim(value) === '';
+}
+
+/**
+ * Split lines and remove empty lines
+ *
+ * @param value
+ */
+export function splitLines(value: string): string[] {
+   return value.split(/\r?\n/).filter(x => x !== '');
 }

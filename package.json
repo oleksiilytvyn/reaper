@@ -1,41 +1,29 @@
 {
-  "name": "@oleksiilytvyn/reaper",
+  "name": "scope",
   "version": "0.1.0",
-  "license": "MIT",
+  "description": "Reaper DAW JavaScript SDK",
   "author": "Oleksii Lytvyn",
-  "description": "Reaper HTTP client",
+  "license": "MIT",
   "type": "module",
-  "main": "./dist/reaper.cjs",
-  "types": "./dist/index.d.ts",
-  "module": "./dist/reaper.js",
-  "sideEffects": false,
-  "private": false,
-  "exports": {
-    "import": "./dist/reaper.js",
-    "require": "./dist/reaper.cjs"
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oleksiilytvyn/reaper"
   },
   "scripts": {
-    "build": "tsc && vite build",
-    "test": "vitest run --config vitest.config.ts"
-  },
-  "keywords": [
-    "reaper",
-    "daw",
-    "api",
-    "http",
-    "tools"
-  ],
-  "dependencies": {
-    "lodash": "^4.17.21"
+    "build": "pnpm -r --filter reaper* build",
+    "test": "pnpm -r --filter reaper* test",
+    "dev": "pnpm -r --filter reaper* dev"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.0",
-    "@types/lodash-es": "^4.17.12",
-    "@types/node": "^20.12.7",
-    "tsx": "^4.19.2",
-    "typescript": "^5.4.5",
-    "vite": "^5.4.8",
-    "vite-plugin-dts": "^4.2.3",
-    "vitest": "^1.5.0"
-  }
+  },
+  "pnpm": {
+    "overrides": {
+    }
+  },
+  "engines": {
+    "node": ">=v20.18.0",
+    "pnpm": ">=8.6.1"
+  },
+  "packageManager": "pnpm@9.15.0"
 }

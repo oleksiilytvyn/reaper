@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "emitDeclarationOnly": true,
-    "declaration": true,
+    "noEmit": true,
     "target": "ESNext",
-    "newLine": "LF",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,
-    "jsx": "preserve"
+    "lib": ["dom", "esnext", "dom.iterable"],
+    "jsx": "preserve",
+    "allowSyntheticDefaultImports": true,
+    "types": ["vitest/globals"]
   },
   "exclude": ["node_modules"]
 }

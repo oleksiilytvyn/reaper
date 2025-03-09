@@ -1,5 +1,5 @@
 import { Command, CommandType } from "./command";
-import { unescapeString } from "../utils";
+import { unescapeString } from "~/utils";
 import _ from 'lodash';
 
 class StateCommand extends Command<StateCommandResponse> {

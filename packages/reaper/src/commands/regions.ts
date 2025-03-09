@@ -1,5 +1,5 @@
 import { Command, CommandType } from './command';
-import { parseColor } from "../utils";
+import { parseColor } from "~/utils";
 import _ from 'lodash';
 
 /**
